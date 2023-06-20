@@ -86,3 +86,9 @@ app.*.map.json
 *.android.*
 *.ios.*
 *.lock
+~/StudioProjects/Spend_Timer/android/app/src/main/AndroidManifest.xml
+~/StudioProjects/Spend_Timer/android/app/src/main/kotlin/takurouyamamoto/com/spend_timer/MainActivity.kt
+~/StudioProjects/Spend_Timer/android/build.gradle
+~/StudioProjects/Spend_Timer/android/app/build.gradle
+~/StudioProjects/Spend_Timer/android/app/src/main/res/values-night/styles.xml
+~/StudioProjects/Spend_Timer/android/app/src/main/res/values/styles.xml
