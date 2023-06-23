@@ -14,7 +14,7 @@ class Home extends StatelessWidget {
           create: (context) => TimerData(),
         ),
       ],
-      child: HomeScreen(),
+      child: const HomeScreen(),
     );
   }
 }

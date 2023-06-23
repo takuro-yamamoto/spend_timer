@@ -46,7 +46,6 @@ class ActivityDetailScreenData extends ChangeNotifier {
   Future<int> deleteActivity() async {
     int result;
     result = await _repository.deleteActivity(activity.id!);
-    print(result);
     if (result == 1) {}
     notifyListeners();
     return result;

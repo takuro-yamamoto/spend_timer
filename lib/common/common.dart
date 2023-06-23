@@ -26,10 +26,6 @@ class Common {
 
   static String durationFormatA(int seconds) {
     Duration duration = Duration(seconds: seconds);
-    // int hours = duration.inHours;
-    // int minutes = duration.inMinutes.remainder(60);
-    // int secs = duration.inSeconds.remainder(60);
-    // return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
     switch (duration.toString().length) {
       case 14:
         return duration.toString().substring(0, 7);
@@ -46,11 +42,6 @@ class Common {
   }
 
   static String durationFormatB(Duration duration) {
-    // Duration duration = Duration(seconds: seconds);
-    // int hours = duration.inHours;
-    // int minutes = duration.inMinutes.remainder(60);
-    // int secs = duration.inSeconds.remainder(60);
-    // return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
     switch (duration.toString().length) {
       case 14:
         return duration.toString().substring(0, 7);

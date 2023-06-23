@@ -41,22 +41,4 @@ class CalenderDayModalData extends ChangeNotifier {
   void reset() {
     _dayActivities = [];
   }
-
-  // Future getActivityByCreatedTime(DateTime time) async {
-  //   Activity? temp;
-  //   temp = await _repository.getActivityByCreatedTime(time);
-  //   if (temp != null) {
-  //     activity = temp;
-  //     notifyListeners();
-  //   }
-  // }
-  //
-  // Future<int> updateActivity() async {
-  //   int result = 0;
-  //   result = await _repository.updateActivity(activity);
-  //   if (result == 1) {
-  //     notifyListeners();
-  //   }
-  //   return result;
-  // }
 }

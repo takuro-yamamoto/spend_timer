@@ -2,7 +2,7 @@ import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-import '../entity/activity.dart';
+import 'package:spend_timer/model/entity/activity.dart';
 
 class ActivityDatabaseHelper {
   static final _databaseName = 'activity_database.db';
@@ -36,8 +36,6 @@ class ActivityDatabaseHelper {
   _initDatabase() async {
     final documentsDirectory = await getDatabasesPath();
     final path = join(documentsDirectory, _databaseName);
-    // return await openDatabase(path,
-    //     version: _databaseVersion, onCreate: _onCreate);
     final database = await openDatabase(path,
         version: _databaseVersion, onCreate: _onCreate);
     await database.execute("PRAGMA timezone = 'Asia/Tokyo';");

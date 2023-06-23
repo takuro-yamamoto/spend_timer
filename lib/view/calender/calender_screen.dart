@@ -30,8 +30,6 @@ class CalenderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _calenderData = context.watch<CalenderScreenData>();
-    MediaQueryData mediaQuery = MediaQuery.of(context);
-    double deviceHeight = mediaQuery.size.height;
 
     //曜日のマス
     Widget weekdayTitle(DateTime day, TextStyle style) {
@@ -74,7 +72,7 @@ class CalenderScreen extends StatelessWidget {
               child: Text(
                 title,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12.0,
                 ),
@@ -155,7 +153,7 @@ class CalenderScreen extends StatelessWidget {
 
     return SafeArea(
       child: _calenderData.isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : ScrollbarTheme(
@@ -203,7 +201,7 @@ class CalenderScreen extends StatelessWidget {
                                   Common.durationFormatA(
                                       _calenderData.getTotalTime()),
                                   // textAlign: TextAlign.center,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 30.0,
                                     fontWeight: FontWeight.bold,
@@ -272,7 +270,7 @@ class CalenderScreen extends StatelessWidget {
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
                                   Padding(
-                                    padding: EdgeInsets.only(top: 10.0),
+                                    padding: const EdgeInsets.only(top: 10.0),
                                     child: Text(
                                       // 'This week',
                                       '今週の合計時間',
@@ -310,7 +308,7 @@ class CalenderScreen extends StatelessWidget {
                                           _calenderData.getTotalWeekTime(
                                               _calenderData.weekActivities)),
                                       // textAlign: TextAlign.center,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 30.0,
                                         fontWeight: FontWeight.bold,
@@ -330,7 +328,7 @@ class CalenderScreen extends StatelessWidget {
                                             ? Text(
                                                 '+${Common.durationFormatA(_calenderData.differenceFromLastWeek)}',
                                                 // textAlign: TextAlign.center,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   color: Colors.greenAccent,
                                                   fontSize: 20.0,
                                                   // fontWeight: FontWeight.bold,
@@ -359,9 +357,6 @@ class CalenderScreen extends StatelessWidget {
                                   tooltipBehavior:
                                       TooltipBehavior(enable: true),
                                   primaryXAxis: CategoryAxis(
-                                    // borderColor: Colors.white,
-                                    // borderWidth: 1,
-                                    // axisBorderType: AxisBorderType.,
                                     majorGridLines: kMajorGridLinesStyle,
                                     axisLine: kAxisLineStyle,
                                     labelStyle: kTextStyleWhite,
@@ -416,8 +411,7 @@ class CalenderScreen extends StatelessWidget {
                                   CalendarFormat.month: 'Month'
                                 },
                                 rowHeight: 80.0, //行の高さ
-                                firstDay: DateTime.now()
-                                    .subtract(Duration(days: 365 * 5)), //5年前まで
+                                firstDay: DateTime(2023, 6, 1),
                                 lastDay: DateTime.now(), //今日まで
                                 focusedDay: _calenderData.focusedDay, //選択された日
                                 calendarFormat: _calendarFormat,
@@ -430,7 +424,7 @@ class CalenderScreen extends StatelessWidget {
                                   _calenderData.daySelected(selectedDay);
                                 },
                                 //カレンダーのスタイル
-                                calendarStyle: CalendarStyle(
+                                calendarStyle: const CalendarStyle(
                                   cellAlignment: Alignment.topCenter,
                                 ),
                                 // カレンダー作成
@@ -591,7 +585,8 @@ class CalenderScreen extends StatelessWidget {
 
                                     if (dailyScheduleList.isNotEmpty) {
                                       return Padding(
-                                        padding: EdgeInsets.only(top: 20.0),
+                                        padding:
+                                            const EdgeInsets.only(top: 20.0),
                                         child: getEventsList(
                                           dayEvents,
                                           isSameDay(day, _selectedDay),
@@ -619,18 +614,18 @@ class CalenderScreen extends StatelessWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(10.0),
-                        child: Container(
+                        child: SizedBox(
                           height: 70,
                           width: double.infinity,
                           child: IconButton(
                             color: Colors.white,
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.arrow_upward,
                               color: Colors.white,
                             ),
                             onPressed: () {
                               _scrollController.animateTo(0, // 移動したい位置を指定
-                                  duration: Duration(milliseconds: 200),
+                                  duration: const Duration(milliseconds: 200),
                                   curve: Curves.ease);
                             },
                           ),

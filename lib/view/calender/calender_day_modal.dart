@@ -11,7 +11,7 @@ import '../detail/activity_detail_screen.dart';
 class CalenderDay extends StatelessWidget {
   final DateTime day;
 
-  CalenderDay({required this.day});
+  const CalenderDay({super.key, required this.day});
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -27,7 +27,7 @@ class CalenderDayModal extends StatelessWidget {
   // const ({Key? key}) : super(key: key);
   final DateTime day;
 
-  CalenderDayModal({required this.day});
+  const CalenderDayModal({super.key, required this.day});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class CalenderDayModal extends StatelessWidget {
       color: kModalEdgeColorColor,
       child: Container(
         height: deviceHeight * 0.8,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: kBackgroundColor,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(15.0),
@@ -48,7 +48,7 @@ class CalenderDayModal extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Expanded(
+            const Expanded(
               flex: 1,
               child: SizedBox(
                 width: 150.0,
@@ -63,7 +63,7 @@ class CalenderDayModal extends StatelessWidget {
               flex: 2,
               child: Text(
                 '${DateFormat('yyyy/MM/dd').format(day)} ${Common.weekDays[day.weekday % 7]}',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -86,13 +86,12 @@ class CalenderDayModal extends StatelessWidget {
                       child: Slidable(
                         key: Key(activity.id.toString()),
                         endActionPane: ActionPane(
-                          motion: DrawerMotion(),
+                          motion: const DrawerMotion(),
                           // dismissible: DismissiblePane(onDismissed: () {}),
                           children: [
                             SlidableAction(
                               onPressed: (context) async {
                                 if (activity.id != null) {
-                                  print('delete');
                                   await _calenderDayData.deleteActivity(
                                       activity, day);
 
@@ -100,7 +99,7 @@ class CalenderDayModal extends StatelessWidget {
                                   _calenderDayData.getDayActivities(day);
                                 }
                               },
-                              backgroundColor: Color(0xFFFE4A49),
+                              backgroundColor: const Color(0xFFFE4A49),
                               foregroundColor: Colors.white,
                               icon: Icons.delete,
                               label: 'Delete',
@@ -111,16 +110,16 @@ class CalenderDayModal extends StatelessWidget {
                           // tileColor:
                           title: Text(
                             activity.title,
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           ),
                           subtitle: Text(
-                            '${activity.description.split('\n').first}',
+                            activity.description.split('\n').first,
                             maxLines: 1,
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           ),
                           trailing: Text(
                             Common.durationFormatA(activity.durationInSeconds),
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           ),
                           onTap: () async {
                             final result = await Navigator.push(

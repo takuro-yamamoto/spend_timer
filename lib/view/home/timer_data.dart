@@ -6,7 +6,7 @@ import 'package:spend_timer/view/search/search_screen.dart';
 
 class TimerData extends ChangeNotifier {
   String _timerText = '0:00:00';
-  Duration _duration = Duration();
+  Duration _duration = const Duration();
   Timer? _timer;
   bool _isRunning = false;
   bool _isFirstTimeStartButtonPressed = false;
@@ -17,8 +17,8 @@ class TimerData extends ChangeNotifier {
   get selectIndex => _selectedIndex;
 
   final List<Widget> _screens = [
-    Calender(),
-    ActivityTimer(),
+    const Calender(),
+    const ActivityTimer(),
     Search(),
   ];
   get screens => _screens;
@@ -56,8 +56,8 @@ class TimerData extends ChangeNotifier {
     _isRunning = true;
     _isFirstTimeStartButtonPressed = true;
     notifyListeners();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      _duration += Duration(seconds: 1);
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _duration += const Duration(seconds: 1);
 
       notifyListeners();
     });
@@ -72,7 +72,7 @@ class TimerData extends ChangeNotifier {
   void resetScreen() {
     _isRunning = false;
     _isFirstTimeStartButtonPressed = false;
-    _duration = Duration();
+    _duration = const Duration();
     _timerText = '0:00:00';
     title = '';
     description = '';

@@ -10,7 +10,7 @@ import 'package:spend_timer/common/constraints.dart';
 class ActivityDetail extends StatelessWidget {
   final Activity activity;
 
-  ActivityDetail({required this.activity});
+  ActivityDetail({super.key, required this.activity});
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -23,6 +23,8 @@ class ActivityDetail extends StatelessWidget {
 class ActivityDetailScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
 
+  ActivityDetailScreen({super.key});
+
   Widget _buildPickerItem(
       int selectedValue, int maxValue, ValueChanged<int> onChanged) {
     return Container(
@@ -31,20 +33,20 @@ class ActivityDetailScreen extends StatelessWidget {
       color: kContainerColor,
       child: ListWheelScrollView(
         itemExtent: 60,
-        physics: FixedExtentScrollPhysics(),
+        physics: const FixedExtentScrollPhysics(),
+        onSelectedItemChanged: onChanged,
+        controller: FixedExtentScrollController(initialItem: selectedValue),
         children: List.generate(
           maxValue,
           (index) => Text(
             index.toString().padLeft(2, '0'),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 50,
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        onSelectedItemChanged: onChanged,
-        controller: FixedExtentScrollController(initialItem: selectedValue),
       ),
     );
   }
@@ -58,7 +60,7 @@ class ActivityDetailScreen extends StatelessWidget {
     int selectedHour = 0;
     int selectedMinute = 0;
     int selectedSecond = 0;
-    int durationInSecounds = 0;
+    int durationInSeconds = 0;
     String title = _activityDetailData.activity.title;
     String description = _activityDetailData.activity.description;
 
@@ -69,7 +71,7 @@ class ActivityDetailScreen extends StatelessWidget {
       backgroundColor: kBackgroundColor,
       body: SafeArea(
         child: _activityDetailData.isLoading
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(),
               )
             : Padding(
@@ -90,7 +92,7 @@ class ActivityDetailScreen extends StatelessWidget {
                           ),
                         ),
                         IconButton(
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.delete,
                             color: Colors.white,
                           ),
@@ -100,19 +102,18 @@ class ActivityDetailScreen extends StatelessWidget {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return CupertinoAlertDialog(
-                                    title: Text('Confirmation'),
-                                    content: Text(
+                                    title: const Text('Confirmation'),
+                                    content: const Text(
                                         'Are you sure you want to delete?'),
                                     actions: [
                                       CupertinoDialogAction(
-                                        child: Text('Cancel'),
+                                        child: const Text('Cancel'),
                                         onPressed: () {
                                           Navigator.pop(
                                               context); // Close the dialog
                                         },
                                       ),
                                       CupertinoDialogAction(
-                                        child: Text('Delete'),
                                         onPressed: () {
                                           // Perform deletion
                                           // Example: Delete data or navigate to another screen
@@ -123,6 +124,7 @@ class ActivityDetailScreen extends StatelessWidget {
                                               true); // Go back to the previous page
                                         },
                                         isDestructiveAction: true,
+                                        child: const Text('Delete'),
                                       ),
                                     ],
                                   );
@@ -132,7 +134,7 @@ class ActivityDetailScreen extends StatelessWidget {
                           },
                         ),
                         IconButton(
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.edit,
                             color: Colors.white,
                           ),
@@ -144,7 +146,7 @@ class ActivityDetailScreen extends StatelessWidget {
                               buildShowModalBottomSheet(
                                   context,
                                   deviceHeight,
-                                  durationInSecounds,
+                                  durationInSeconds,
                                   selectedHour,
                                   selectedMinute,
                                   selectedSecond,
@@ -161,30 +163,32 @@ class ActivityDetailScreen extends StatelessWidget {
                         children: [
                           Center(
                             child: Text(
-                              '${DateFormat('yyyy/MM/dd HH:mm:ss').format(_activityDetailData.activity.createdTime)}',
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.white),
+                              DateFormat('yyyy/MM/dd HH:mm:ss').format(
+                                  _activityDetailData.activity.createdTime),
+                              style: const TextStyle(
+                                  fontSize: 16, color: Colors.white),
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Center(
                             child: Text(
-                              '${Common.durationFormatA(_activityDetailData.activity.durationInSeconds)}',
-                              style: TextStyle(
+                              Common.durationFormatA(_activityDetailData
+                                  .activity.durationInSeconds),
+                              style: const TextStyle(
                                   fontSize: 50,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white),
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
-                            '${_activityDetailData.activity.title}',
-                            style: TextStyle(
+                            _activityDetailData.activity.title,
+                            style: const TextStyle(
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           // Text(
                           //   'id: ${activity.id}',
                           //   style: TextStyle(fontSize: 16),
@@ -192,8 +196,8 @@ class ActivityDetailScreen extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              '${_activityDetailData.activity.description}',
-                              style: TextStyle(
+                              _activityDetailData.activity.description,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.white,
                               ),
@@ -231,7 +235,7 @@ class ActivityDetailScreen extends StatelessWidget {
           height: deviceHeight * 0.9,
           color: kModalEdgeColorColor,
           child: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: kBackgroundColor,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(20.0),
@@ -252,13 +256,13 @@ class ActivityDetailScreen extends StatelessWidget {
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              icon: Icon(
+                              icon: const Icon(
                                 Icons.close,
                                 color: Colors.white,
                               ),
                             ),
                             IconButton(
-                              icon: Icon(
+                              icon: const Icon(
                                 Icons.done,
                                 color: Colors.white,
                               ),
@@ -275,7 +279,6 @@ class ActivityDetailScreen extends StatelessWidget {
                                       .durationInSeconds = durationInSecounds;
                                   int result = await _activityDetailData
                                       .updateActivity();
-                                  print(result);
                                   Navigator.pop(context);
                                 }
                               },
@@ -312,16 +315,16 @@ class ActivityDetailScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Container(
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                               border: Border(
                             top: BorderSide(color: kContainerColor),
                             bottom: BorderSide(color: kContainerColor),
                           )),
                           child: TextFormField(
                             initialValue: _activityDetailData.activity.title,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -349,33 +352,30 @@ class ActivityDetailScreen extends StatelessWidget {
                             },
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Container(
-                            // color: kContainerColor,
-                            child: TextFormField(
-                              initialValue:
-                                  _activityDetailData.activity.description,
-                              maxLines: 10,
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                              decoration: InputDecoration(
-                                  labelText: 'memo',
-                                  labelStyle: TextStyle(
-                                    color: Colors.white.withOpacity(0.5),
-                                  ),
-                                  border: InputBorder.none
-                                  // filled: true,
-                                  // fillColor: Colors.white,
-                                  ),
-                              onChanged: (value) {
-                                if (value != null) {
-                                  description = value;
-                                }
-                              },
+                          child: TextFormField(
+                            initialValue:
+                                _activityDetailData.activity.description,
+                            maxLines: 10,
+                            style: const TextStyle(
+                              color: Colors.white,
                             ),
+                            decoration: InputDecoration(
+                                labelText: 'memo',
+                                labelStyle: TextStyle(
+                                  color: Colors.white.withOpacity(0.5),
+                                ),
+                                border: InputBorder.none
+                                // filled: true,
+                                // fillColor: Colors.white,
+                                ),
+                            onChanged: (value) {
+                              if (value != null) {
+                                description = value;
+                              }
+                            },
                           ),
                         ),
                       ],
