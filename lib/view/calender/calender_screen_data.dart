@@ -137,7 +137,7 @@ class CalenderScreenData extends ChangeNotifier {
   List<Weekday> getWeekday(DateTime day, List<Activity> weekActivities) {
     // 週の始まり（日曜日）を計算
     DateTime weekStart = DateTime(day.year, day.month, day.day)
-        .subtract(Duration(days: day.weekday));
+        .subtract(Duration(days: day.weekday % 7));
     int time = 0;
     List<Weekday> weekDayTime = [];
 
