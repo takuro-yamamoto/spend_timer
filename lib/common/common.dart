@@ -12,16 +12,16 @@ class Common {
   ];
 
   static List<Color> colors = [
-    Color.fromRGBO(170, 255, 234, 1), // RGB(170, 255, 234) - HEX #aaffea
-    Color.fromRGBO(105, 240, 174, 1), // RGB(105, 240, 174) - HEX #69f0ae
-    Color.fromRGBO(24, 179, 117, 1), // RGB(24, 179, 117) - HEX #18b375
-    Color.fromRGBO(0, 120, 65, 1), // RGB(0, 120, 65) - HEX #007841
-    Color.fromRGBO(0, 66, 17, 1), // RGB(0, 66, 17) - HEX #004211
-    Color.fromRGBO(38, 166, 154, 1), // RGB(38, 166, 154) - HEX #26a69a
-    Color.fromRGBO(100, 216, 203, 1), // RGB(100, 216, 203) - HEX #64d8cb
-    Color.fromRGBO(153, 255, 254, 1), // RGB(153, 255, 254) - HEX #99fffe
-    Color.fromRGBO(206, 255, 255, 1), // RGB(206, 255, 255) - HEX #ceffff
-    Color.fromRGBO(255, 255, 255, 1), // RGB(255, 255, 255) - HEX #ffffff
+    const Color.fromRGBO(170, 255, 234, 1), // RGB(170, 255, 234) - HEX #aaffea
+    const Color.fromRGBO(105, 240, 174, 1), // RGB(105, 240, 174) - HEX #69f0ae
+    const Color.fromRGBO(24, 179, 117, 1), // RGB(24, 179, 117) - HEX #18b375
+    const Color.fromRGBO(0, 120, 65, 1), // RGB(0, 120, 65) - HEX #007841
+    const Color.fromRGBO(0, 66, 17, 1), // RGB(0, 66, 17) - HEX #004211
+    const Color.fromRGBO(38, 166, 154, 1), // RGB(38, 166, 154) - HEX #26a69a
+    const Color.fromRGBO(100, 216, 203, 1), // RGB(100, 216, 203) - HEX #64d8cb
+    const Color.fromRGBO(153, 255, 254, 1), // RGB(153, 255, 254) - HEX #99fffe
+    const Color.fromRGBO(206, 255, 255, 1), // RGB(206, 255, 255) - HEX #ceffff
+    const Color.fromRGBO(255, 255, 255, 1), // RGB(255, 255, 255) - HEX #ffffff
   ];
 
   static String durationFormatA(int seconds) {

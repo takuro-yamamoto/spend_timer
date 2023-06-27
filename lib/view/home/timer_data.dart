@@ -12,6 +12,9 @@ class TimerData extends ChangeNotifier {
   bool _isFirstTimeStartButtonPressed = false;
   String title = '';
   String description = '';
+  late DateTime _startTime;
+  late DateTime _stopTime;
+  Duration _pausedDuration = const Duration();
 
   int _selectedIndex = 1;
   get selectIndex => _selectedIndex;
@@ -19,7 +22,7 @@ class TimerData extends ChangeNotifier {
   final List<Widget> _screens = [
     const Calender(),
     const ActivityTimer(),
-    Search(),
+    const Search(),
   ];
   get screens => _screens;
 
@@ -54,10 +57,16 @@ class TimerData extends ChangeNotifier {
 
   void startTimer() {
     _isRunning = true;
-    _isFirstTimeStartButtonPressed = true;
+    if (_isFirstTimeStartButtonPressed == false) {
+      _startTime = DateTime.now();
+      _isFirstTimeStartButtonPressed = true;
+    } else {
+      _pausedDuration += DateTime.now().difference(_stopTime);
+    }
+
     notifyListeners();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      _duration += const Duration(seconds: 1);
+      _duration = DateTime.now().difference(_startTime) - _pausedDuration;
 
       notifyListeners();
     });
@@ -66,6 +75,7 @@ class TimerData extends ChangeNotifier {
   void stopTimer() {
     _isRunning = false;
     _timer?.cancel();
+    _stopTime = DateTime.now();
     notifyListeners();
   }
 
@@ -73,6 +83,7 @@ class TimerData extends ChangeNotifier {
     _isRunning = false;
     _isFirstTimeStartButtonPressed = false;
     _duration = const Duration();
+    _pausedDuration = const Duration();
     _timerText = '0:00:00';
     title = '';
     description = '';

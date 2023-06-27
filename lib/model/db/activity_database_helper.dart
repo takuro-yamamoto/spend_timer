@@ -93,18 +93,12 @@ class ActivityDatabaseHelper {
   }
 
   Future<List<Activity>> getWeekActivities(DateTime day) async {
-    print('day');
-    print(day);
     // 週の始まり（日曜日）を計算
     DateTime weekStart = day.subtract(Duration(days: day.weekday % 7));
-    print(weekStart);
 // 週の終わり（土曜日）を計算
     DateTime weekEnd = weekStart.add(Duration(days: 6));
-    print(weekEnd);
     String weekStartStr = DateFormat('yyyy-MM-dd').format(weekStart);
     String weekEndStr = DateFormat('yyyy-MM-dd').format(weekEnd);
-    print(weekStartStr);
-    print(weekEndStr);
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.rawQuery(
         "SELECT * FROM $table WHERE '$weekStartStr' <= DATE($columnCreatedTime) AND DATE($columnCreatedTime) <= '$weekEndStr' ");
