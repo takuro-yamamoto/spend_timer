@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:spend_timer/model/repository/activity_repository.dart';
+import 'package:spend_timer/model/entity/activity.dart';
 
 class ActivityTimerScreenData extends ChangeNotifier {
   final ActivityRepository _repository = ActivityRepository();
@@ -25,6 +26,12 @@ class ActivityTimerScreenData extends ChangeNotifier {
 
   Future<int> insertActivity(activity) async {
     return await _repository.insertActivity(activity);
+  }
+
+  Future<Activity?> getActivityByCreatedTime(DateTime time) async {
+    Activity? activity;
+    activity = await _repository.getActivityByCreatedTime(time);
+    return activity;
   }
 
   void _startLoading() {

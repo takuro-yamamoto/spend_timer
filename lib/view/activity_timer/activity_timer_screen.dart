@@ -202,6 +202,10 @@ class ActivityTimerScreen extends StatelessWidget {
                                   );
                                   await _activityTimerScreenData
                                       .insertActivity(activity);
+                                  // activity = await _activityTimerScreenData
+                                  //     .getActivityByCreatedTime(
+                                  //         activity.createdTime);
+                                  // print(activity);
 
                                   Navigator.push(
                                     context,
