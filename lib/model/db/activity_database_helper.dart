@@ -1,20 +1,20 @@
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-
+import 'package:spend_timer/model/db/lap_times_database_helper.dart';
 import 'package:spend_timer/model/entity/activity.dart';
 
 class ActivityDatabaseHelper {
-  static final _databaseName = 'activity_database.db';
-  static final _databaseVersion = 1;
+  static const _databaseName = 'activity_database.db';
+  static const _databaseVersion = 2;
 
-  static final table = 'activities';
+  static const table = 'activities';
 
-  static final columnId = 'id';
-  static final columnTitle = 'title';
-  static final columnDescription = 'description';
-  static final columnDurationInSeconds = 'duration_in_seconds';
-  static final columnCreatedTime = 'created_time';
+  static const columnId = 'id';
+  static const columnTitle = 'title';
+  static const columnDescription = 'description';
+  static const columnDurationInSeconds = 'duration_in_seconds';
+  static const columnCreatedTime = 'created_time';
 
   // make this a singleton class
   ActivityDatabaseHelper._privateConstructor();
@@ -25,6 +25,7 @@ class ActivityDatabaseHelper {
   factory ActivityDatabaseHelper() {
     return _instance;
   }
+  final LapTimesDatabaseHelper _lapTimesHelper = LapTimesDatabaseHelper();
   static Database? _database;
 
   Future<Database> get database async {
@@ -37,7 +38,7 @@ class ActivityDatabaseHelper {
     final documentsDirectory = await getDatabasesPath();
     final path = join(documentsDirectory, _databaseName);
     final database = await openDatabase(path,
-        version: _databaseVersion, onCreate: _onCreate);
+        version: _databaseVersion, onCreate: _onCreate, onUpgrade: _onUpgrade);
     await database.execute("PRAGMA timezone = 'Asia/Tokyo';");
     return database;
   }
@@ -52,6 +53,13 @@ class ActivityDatabaseHelper {
             $columnDurationInSeconds INTEGER NOT NULL
           )
           ''');
+    await _lapTimesHelper.createLapTimes(db);
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await _lapTimesHelper.createLapTimes(db);
+    }
   }
 
   Future<int> insertActivity(Activity activity) async {
@@ -73,7 +81,7 @@ class ActivityDatabaseHelper {
   Future<List<Activity>> getTotalTimeActivities() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.rawQuery(
-        'SELECT $columnTitle, SUM($columnDurationInSeconds) AS "total_time" FROM $table GROUP BY $columnTitle ORDER BY "total_time" DESC LIMIT 10');
+        'SELECT $columnTitle, SUM($columnDurationInSeconds) AS "total_time" FROM $table GROUP BY $columnTitle ORDER BY "total_time" DESC ');
     return List.generate(maps.length, (i) {
       return Activity(
           title: maps[i][columnTitle],
@@ -96,7 +104,7 @@ class ActivityDatabaseHelper {
     // 週の始まり（日曜日）を計算
     DateTime weekStart = day.subtract(Duration(days: day.weekday % 7));
 // 週の終わり（土曜日）を計算
-    DateTime weekEnd = weekStart.add(Duration(days: 6));
+    DateTime weekEnd = weekStart.add(const Duration(days: 6));
     String weekStartStr = DateFormat('yyyy-MM-dd').format(weekStart);
     String weekEndStr = DateFormat('yyyy-MM-dd').format(weekEnd);
     final db = await database;
@@ -114,8 +122,6 @@ class ActivityDatabaseHelper {
 
   Future<List<Activity>> getDayActivities(DateTime searchDay) async {
     final db = await database;
-    String day = searchDay.toIso8601String();
-
     final List<Map<String, dynamic>> maps = await db.rawQuery(
         "SELECT  * FROM $table WHERE DATE($columnCreatedTime) = '${DateFormat('yyyy-MM-dd').format(searchDay)}' ");
     if (maps.isNotEmpty) {

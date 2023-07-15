@@ -21,15 +21,17 @@ class Calender extends StatelessWidget {
   }
 }
 
+DateTime? _selectedDay;
+
 class CalenderScreen extends StatelessWidget {
   final CalendarFormat _calendarFormat = CalendarFormat.month;
   final ScrollController _scrollController = ScrollController();
 
-  DateTime? _selectedDay;
+  CalenderScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final _calenderData = context.watch<CalenderScreenData>();
+    final calenderData = context.watch<CalenderScreenData>();
 
     //曜日のマス
     Widget weekdayTitle(DateTime day, TextStyle style) {
@@ -90,8 +92,8 @@ class CalenderScreen extends StatelessWidget {
         context: context,
         builder: (context) => CalenderDay(day: day),
       ).then((value) {
-        _calenderData.reset();
-        _calenderData.reload();
+        calenderData.reset();
+        calenderData.reload();
       });
     }
 
@@ -151,8 +153,56 @@ class CalenderScreen extends StatelessWidget {
       }
     }
 
+    List<Widget> getTotalTimeList() {
+      List<Widget> totalTimeList = [];
+      for (int index = 0;
+          index < calenderData.totalTimeActivities.length;
+          index++) {
+        totalTimeList.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Container(
+              height: 40.0,
+              decoration: BoxDecoration(
+                border: Border(
+                  top: (index == 0)
+                      ? const BorderSide(width: 1, color: Colors.white)
+                      : BorderSide.none,
+                  bottom: const BorderSide(width: 1, color: Colors.white),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      calenderData.totalTimeActivities[index].title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+                    Text(
+                      Common.durationFormatA(calenderData
+                          .totalTimeActivities[index].durationInSeconds),
+                      style: TextStyle(
+                        color: (index == 0) ? Colors.greenAccent : Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+      return totalTimeList;
+    }
+
     return SafeArea(
-      child: _calenderData.isLoading
+      child: calenderData.isLoading
           ? const Center(
               child: CircularProgressIndicator(),
             )
@@ -195,59 +245,105 @@ class CalenderScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 10.0),
-                                child: Text(
-                                  Common.durationFormatA(
-                                      _calenderData.getTotalTime()),
-                                  // textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 30.0,
-                                    fontWeight: FontWeight.bold,
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    width: 59,
+                                    // height: 10,
+                                    // color: Colors.white,
                                   ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 10.0),
-                                child: SfCartesianChart(
-                                  tooltipBehavior:
-                                      TooltipBehavior(enable: true),
-                                  primaryXAxis: CategoryAxis(
-                                    majorGridLines: kMajorGridLinesStyle,
-                                    axisLine: kAxisLineStyle,
-                                    labelStyle: kTextStyleWhite,
-                                  ),
-                                  primaryYAxis: NumericAxis(
-                                    majorGridLines: kMajorGridLinesStyle,
-                                    axisLine: kAxisLineStyle,
-                                    labelStyle: kTextStyleWhite,
-                                    labelFormat: '{value}h',
-                                  ),
-                                  series: <ColumnSeries<Activity, String>>[
-                                    ColumnSeries<Activity, String>(
-                                      color: Colors.white,
-                                      name: "Total Time",
-                                      // yAxisName: 'hour',
-                                      dataSource:
-                                          _calenderData.totalTimeActivities,
-                                      xValueMapper: (Activity data, _) =>
-                                          data.title,
-                                      yValueMapper: (Activity data, _) {
-                                        double num =
-                                            data.durationInSeconds / 3600;
-                                        double hour =
-                                            (num * 100).truncateToDouble() /
-                                                100;
-                                        return hour;
-                                      },
-                                      pointColorMapper: (Activity data, _) =>
-                                          data.color,
-                                      // Color(0xfff59347),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 10.0),
+                                    child: Text(
+                                      Common.durationFormatA(
+                                          calenderData.getTotalTime()),
+                                      // textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 30.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 10.0),
+                                    child: Switch(
+                                      value: calenderData.isShowTotalTimeWidget,
+                                      onChanged: (value) {
+                                        calenderData
+                                            .changeTotalTimeWidget(value);
+                                      },
+                                      activeColor: Colors.white,
+                                      inactiveTrackColor: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
+                              calenderData.isShowTotalTimeWidget
+                                  ? Column(
+                                      children: [
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 10.0),
+                                          child: SfCartesianChart(
+                                            tooltipBehavior:
+                                                TooltipBehavior(enable: true),
+                                            primaryXAxis: CategoryAxis(
+                                              majorGridLines:
+                                                  kMajorGridLinesStyle,
+                                              axisLine: kAxisLineStyle,
+                                              labelStyle: kTextStyleWhite,
+                                            ),
+                                            primaryYAxis: NumericAxis(
+                                              majorGridLines:
+                                                  kMajorGridLinesStyle,
+                                              axisLine: kAxisLineStyle,
+                                              labelStyle: kTextStyleWhite,
+                                              labelFormat: '{value}h',
+                                            ),
+                                            series: <ColumnSeries<Activity,
+                                                String>>[
+                                              ColumnSeries<Activity, String>(
+                                                color: Colors.white,
+                                                name: "Total Time",
+                                                // yAxisName: 'hour',
+                                                dataSource: calenderData
+                                                    .totalTimeActivitiesCharts,
+                                                xValueMapper:
+                                                    (Activity data, _) =>
+                                                        data.title,
+                                                yValueMapper:
+                                                    (Activity data, _) {
+                                                  double num =
+                                                      data.durationInSeconds /
+                                                          3600;
+                                                  double hour = (num * 100)
+                                                          .truncateToDouble() /
+                                                      100;
+                                                  return hour;
+                                                },
+                                                pointColorMapper:
+                                                    (Activity data, _) =>
+                                                        data.color,
+                                                // Color(0xfff59347),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : Column(
+                                      children: [
+                                        Column(
+                                          children: getTotalTimeList(),
+                                        ),
+                                        Container(
+                                          height: 10,
+                                        )
+                                      ],
+                                    ),
                             ],
                           ),
                         ),
@@ -305,8 +401,8 @@ class CalenderScreen extends StatelessWidget {
                                   children: [
                                     Text(
                                       Common.durationFormatA(
-                                          _calenderData.getTotalWeekTime(
-                                              _calenderData.weekActivities)),
+                                          calenderData.getTotalWeekTime(
+                                              calenderData.weekActivities)),
                                       // textAlign: TextAlign.center,
                                       style: const TextStyle(
                                         color: Colors.white,
@@ -324,9 +420,9 @@ class CalenderScreen extends StatelessWidget {
                                             fontSize: 16.0,
                                           ),
                                         ),
-                                        _calenderData.differenceFromLastWeek > 0
+                                        calenderData.differenceFromLastWeek > 0
                                             ? Text(
-                                                '+${Common.durationFormatA(_calenderData.differenceFromLastWeek)}',
+                                                '+${Common.durationFormatA(calenderData.differenceFromLastWeek)}',
                                                 // textAlign: TextAlign.center,
                                                 style: const TextStyle(
                                                   color: Colors.greenAccent,
@@ -336,7 +432,7 @@ class CalenderScreen extends StatelessWidget {
                                               )
                                             : Text(
                                                 Common.durationFormatA(
-                                                    _calenderData
+                                                    calenderData
                                                         .differenceFromLastWeek),
                                                 // textAlign: TextAlign.center,
                                                 style: TextStyle(
@@ -371,7 +467,7 @@ class CalenderScreen extends StatelessWidget {
                                     ColumnSeries<Weekday, String>(
                                       color: Colors.greenAccent,
                                       name: "week",
-                                      dataSource: _calenderData.weekdayTime,
+                                      dataSource: calenderData.weekdayTime,
                                       xValueMapper: (Weekday data, _) =>
                                           data.dayOfWeek,
                                       yValueMapper: (Weekday data, _) {
@@ -413,7 +509,7 @@ class CalenderScreen extends StatelessWidget {
                                 rowHeight: 80.0, //行の高さ
                                 firstDay: DateTime(2023, 6, 1),
                                 lastDay: DateTime.now(), //今日まで
-                                focusedDay: _calenderData.focusedDay, //選択された日
+                                focusedDay: calenderData.focusedDay, //選択された日
                                 calendarFormat: _calendarFormat,
                                 selectedDayPredicate: (day) {
                                   return isSameDay(_selectedDay, day);
@@ -421,7 +517,7 @@ class CalenderScreen extends StatelessWidget {
                                 //日にちが押された時の処理
                                 onDaySelected: (selectedDay, focusedDay) {
                                   _selectedDay = selectedDay;
-                                  _calenderData.daySelected(selectedDay);
+                                  calenderData.daySelected(selectedDay);
                                 },
                                 //カレンダーのスタイル
                                 calendarStyle: const CalendarStyle(
@@ -594,11 +690,12 @@ class CalenderScreen extends StatelessWidget {
                                         ),
                                       );
                                     }
+                                    return null;
                                   },
                                 ),
                                 // イベント取得
                                 eventLoader: (DateTime dateTime) {
-                                  return _calenderData.events[DateTime(
+                                  return calenderData.events[DateTime(
                                           dateTime.year,
                                           dateTime.month,
                                           dateTime.day)] ??

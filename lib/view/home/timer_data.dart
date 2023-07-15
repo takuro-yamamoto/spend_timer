@@ -15,6 +15,11 @@ class TimerData extends ChangeNotifier {
   late DateTime _startTime;
   late DateTime _stopTime;
   Duration _pausedDuration = const Duration();
+  List<Duration> _lapTimes = [const Duration()];
+  late DateTime _lapTime;
+  Duration _lapTimeDuration = const Duration();
+  Duration _lapPausedDuration = const Duration();
+  final ScrollController scrollController = ScrollController();
 
   int _selectedIndex = 1;
   get selectIndex => _selectedIndex;
@@ -47,7 +52,15 @@ class TimerData extends ChangeNotifier {
     return _isFirstTimeStartButtonPressed;
   }
 
-  bool isStopButtonEnabled() {
+  Duration get lapTimeDuration {
+    return _lapTimeDuration;
+  }
+
+  List<Duration> get lapTimes {
+    return _lapTimes;
+  }
+
+  bool isSaveButtonEnabled() {
     if (_isRunning == false && _isFirstTimeStartButtonPressed) {
       return true;
     } else {
@@ -59,14 +72,20 @@ class TimerData extends ChangeNotifier {
     _isRunning = true;
     if (_isFirstTimeStartButtonPressed == false) {
       _startTime = DateTime.now();
+      _lapTime = DateTime.now();
       _isFirstTimeStartButtonPressed = true;
     } else {
       _pausedDuration += DateTime.now().difference(_stopTime);
+      _lapPausedDuration += DateTime.now().difference(_stopTime);
     }
 
     notifyListeners();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _duration = DateTime.now().difference(_startTime) - _pausedDuration;
+      _lapTimeDuration =
+          DateTime.now().difference(_lapTime) - _lapPausedDuration;
+
+      _lapTimes.last = _lapTimeDuration;
 
       notifyListeners();
     });
@@ -79,6 +98,15 @@ class TimerData extends ChangeNotifier {
     notifyListeners();
   }
 
+  void lapTimer() {
+    _lapTimes.last = DateTime.now().difference(_lapTime) - _lapPausedDuration;
+    _lapTimeDuration = const Duration();
+    _lapTimes.add(_lapTimeDuration);
+    _lapTime = DateTime.now();
+    _lapPausedDuration = const Duration();
+    notifyListeners();
+  }
+
   void resetScreen() {
     _isRunning = false;
     _isFirstTimeStartButtonPressed = false;
@@ -87,6 +115,9 @@ class TimerData extends ChangeNotifier {
     _timerText = '0:00:00';
     title = '';
     description = '';
+    _lapTimeDuration = const Duration();
+    _lapPausedDuration = const Duration();
+    _lapTimes = [const Duration()];
     notifyListeners();
   }
 }

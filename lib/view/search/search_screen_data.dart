@@ -1,9 +1,9 @@
 import 'package:spend_timer/model/entity/activity.dart';
 import 'package:flutter/material.dart';
-import 'package:spend_timer/model/repository/activity_repository.dart';
+import 'package:spend_timer/model/repository/repository.dart';
 
 class SearchScreenData extends ChangeNotifier {
-  final ActivityRepository _repository = ActivityRepository();
+  final Repository _repository = Repository();
 
   SearchScreenData() {
     getAllActivities();
@@ -16,6 +16,18 @@ class SearchScreenData extends ChangeNotifier {
   bool _isLoading = false;
 
   bool get isLoading => _isLoading;
+
+  String searchString = '';
+
+  void _startLoading() {
+    _isLoading = true;
+    notifyListeners();
+  }
+
+  void _finishLoading() {
+    _isLoading = false;
+    notifyListeners();
+  }
 
   void getAllActivities() async {
     _startLoading();
@@ -38,13 +50,10 @@ class SearchScreenData extends ChangeNotifier {
     _finishLoading();
   }
 
-  void _startLoading() {
-    _isLoading = true;
+  Future<int> deleteLapTimes(Activity activity) async {
+    int result;
+    result = await _repository.deleteLapTimes(activity.id!);
     notifyListeners();
-  }
-
-  void _finishLoading() {
-    _isLoading = false;
-    notifyListeners();
+    return result;
   }
 }

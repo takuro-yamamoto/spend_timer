@@ -14,21 +14,23 @@ class Search extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => SearchScreenData(),
-      child: SearchScreen(),
+      child: const SearchScreen(),
     );
   }
 }
+
+final searchController = TextEditingController();
 
 class SearchScreen extends StatelessWidget {
   const SearchScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final _activityData = context.watch<SearchScreenData>();
+    final activityData = context.watch<SearchScreenData>();
     return SafeArea(
       child: Scrollbar(
         child: ListView.builder(
-          itemCount: _activityData.activities.length + 1,
+          itemCount: activityData.activities.length + 1,
           itemBuilder: (context, index) {
             if (index == 0) {
               return Padding(
@@ -41,6 +43,7 @@ class SearchScreen extends StatelessWidget {
                   ),
                   child: Center(
                     child: TextField(
+                      controller: searchController,
                       style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                           hintStyle: TextStyle(color: Colors.white),
@@ -51,14 +54,16 @@ class SearchScreen extends StatelessWidget {
                           ),
                           border: InputBorder.none),
                       onChanged: (searchString) {
-                        _activityData.searchActivities(searchString);
+                        activityData.searchString = searchString;
+                        activityData
+                            .searchActivities(activityData.searchString);
                       },
                     ),
                   ),
                 ),
               );
             } else {
-              final activity = _activityData.activities[index - 1];
+              final activity = activityData.activities[index - 1];
               return Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
@@ -71,7 +76,8 @@ class SearchScreen extends StatelessWidget {
                       SlidableAction(
                         onPressed: (context) {
                           if (activity.id != null) {
-                            _activityData.deleteActivity(activity);
+                            activityData.deleteActivity(activity);
+                            activityData.deleteLapTimes(activity);
                           }
                         },
                         backgroundColor: const Color(0xFFFE4A49),
@@ -99,15 +105,20 @@ class SearchScreen extends StatelessWidget {
                         style: kTextStyleWhite,
                       ),
                       onTap: () async {
-                        final result = await Navigator.push(
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
                                 ActivityDetail(activity: activity),
                           ),
                         );
-
-                        _activityData.getAllActivities();
+                        if (activityData.searchString == '') {
+                          activityData.getAllActivities();
+                        } else {
+                          activityData
+                              .searchActivities(activityData.searchString);
+                          searchController.text = activityData.searchString;
+                        }
                       },
                     ),
                   ),

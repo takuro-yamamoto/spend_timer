@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:spend_timer/common/common.dart';
+import 'package:spend_timer/model/entity/lap_time.dart';
 import 'package:spend_timer/view/detail/activity_detail_screen.dart';
 import 'package:spend_timer/model/entity/activity.dart';
 import 'package:spend_timer/view/home/timer_data.dart';
@@ -31,15 +32,16 @@ class ActivityTimerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _timerData = context.watch<TimerData>();
-    final _activityTimerScreenData = context.watch<ActivityTimerScreenData>();
+    final timerData = context.watch<TimerData>();
+    final activityTimerScreenData = context.watch<ActivityTimerScreenData>();
+    final ScrollController scrollController = timerData.scrollController;
 
-    if (_timerData.isRunning == false) {
-      titleController.text = _timerData.title;
-      descriptionController.text = _timerData.description;
+    if (timerData.isRunning == false) {
+      titleController.text = timerData.title;
+      descriptionController.text = timerData.description;
     }
 
-    final _titles = _activityTimerScreenData.titles;
+    final titles = activityTimerScreenData.titles;
 
     return Form(
       key: _formKey,
@@ -54,15 +56,37 @@ class ActivityTimerScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Expanded(
-                flex: 5,
-                child: Center(
-                  child: Text(
-                    Common.durationFormatB(_timerData.duration),
-                    style: const TextStyle(
-                      fontSize: 80.0,
-                      color: Colors.white,
+                flex: 4,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(width: 1, color: kContainerColor),
                     ),
                   ),
+                  child: Center(
+                    child: Text(
+                      Common.durationFormatB(timerData.duration),
+                      style: const TextStyle(
+                        fontSize: 80.0,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: ListView.builder(
+                  controller: scrollController,
+                  // reverse: true,
+                  itemCount: timerData.lapTimes.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return LapItem(
+                      index: timerData.lapTimes.length - index,
+                      duration: Common.durationFormatB(timerData
+                          .lapTimes[timerData.lapTimes.length - 1 - index]),
+                    );
+                  },
                 ),
               ),
               Expanded(
@@ -94,10 +118,7 @@ class ActivityTimerScreen extends StatelessWidget {
                       return null;
                     },
                     onChanged: (value) {
-                      if (value != null) {
-                        _timerData.title = value;
-                        // title = value;
-                      }
+                      timerData.title = value;
                     },
                   ),
                 ),
@@ -106,7 +127,7 @@ class ActivityTimerScreen extends StatelessWidget {
                 flex: 1,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: _titles.length,
+                  itemCount: titles.length,
                   itemBuilder: (BuildContext context, int index) {
                     return Container(
                       decoration: BoxDecoration(
@@ -125,11 +146,11 @@ class ActivityTimerScreen extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                          _timerData.title = _titles[index];
-                          titleController.text = _titles[index];
+                          timerData.title = titles[index];
+                          titleController.text = titles[index];
                         },
                         child: Text(
-                          _titles[index],
+                          titles[index],
                           style: const TextStyle(
                             fontSize: 16.0,
                             color: Colors.white,
@@ -166,124 +187,214 @@ class ActivityTimerScreen extends StatelessWidget {
                     ),
                     maxLines: 10,
                     onChanged: (value) {
-                      if (value != null) {
-                        _timerData.description = value;
-                      }
+                      timerData.description = value;
                     },
                   ),
                 ),
               ),
               Expanded(
                 flex: 2,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    if (_timerData.isStopButtonEnabled())
-                      GestureDetector(
-                        onTap: () {
-                          if (_timerData.isStopButtonEnabled()) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Press Longer')),
-                            );
-                          }
-                        },
-                        onLongPress: () {
-                          if (_timerData.isStopButtonEnabled()) {
-                            if (_formKey.currentState != null &&
-                                _formKey.currentState!.validate()) {
-                              Future(
-                                () async {
-                                  final activity = Activity(
-                                    title: _timerData.title!,
-                                    description: _timerData.description,
-                                    durationInSeconds:
-                                        _timerData.duration.inSeconds,
-                                    createdTime: DateTime.now(),
-                                  );
-                                  await _activityTimerScreenData
-                                      .insertActivity(activity);
-                                  // activity = await _activityTimerScreenData
-                                  //     .getActivityByCreatedTime(
-                                  //         activity.createdTime);
-                                  // print(activity);
-
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          ActivityDetail(activity: activity),
-                                    ),
-                                  );
-                                  _timerData.resetScreen();
-                                  _activityTimerScreenData.getAllTitle();
-                                },
-                              );
-                            }
-                          }
-                        },
-                        child: Container(
-                          width: 120,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: Colors.blueAccent,
-                            // shape: BoxShape.circle,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'SAVE',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 20),
+                child: (timerData.isRunning)
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Container(
+                            width: 120,
+                            height: 80,
+                            decoration: const BoxDecoration(
+                              color: kContainerColor,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(20),
+                              ),
+                            ),
+                            child: TextButton(
+                              onPressed: () {
+                                timerData.lapTimer();
+                                scrollController.jumpTo(0);
+                              },
+                              child: const Text(
+                                'LAP',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    if (_timerData.isRunning)
-                      Container(
-                        width: 120,
-                        height: 80,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(20),
-                          ),
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            _timerData.stopTimer();
-                          },
-                          child: const Text(
-                            'STOP',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
+                          Container(
+                            width: 120,
+                            height: 80,
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(20),
+                              ),
+                            ),
+                            child: TextButton(
+                              onPressed: () {
+                                timerData.stopTimer();
+                              },
+                              child: const Text(
+                                'STOP',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       )
-                    else
-                      Container(
-                        width: 120,
-                        height: 80,
-                        decoration: const BoxDecoration(
-                          color: Colors.green,
-                          // shape: BoxShape.circle,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(20),
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          if (timerData.isSaveButtonEnabled())
+                            GestureDetector(
+                              onTap: () {
+                                if (timerData.isSaveButtonEnabled()) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text('Press Longer')),
+                                  );
+                                }
+                              },
+                              onLongPress: () {
+                                if (timerData.isSaveButtonEnabled()) {
+                                  if (_formKey.currentState != null &&
+                                      _formKey.currentState!.validate()) {
+                                    Future(
+                                      () async {
+                                        Activity activity = Activity(
+                                          title: timerData.title,
+                                          description: timerData.description,
+                                          durationInSeconds:
+                                              timerData.duration.inSeconds,
+                                          createdTime: DateTime.now(),
+                                        );
+                                        await activityTimerScreenData
+                                            .insertActivity(activity);
+                                        Activity? temp =
+                                            await activityTimerScreenData
+                                                .getActivityByCreatedTime(
+                                                    activity.createdTime);
+                                        if (temp != null) {
+                                          activity = temp;
+                                          List<LapTime> lapTimes = [];
+                                          for (Duration duration
+                                              in timerData.lapTimes) {
+                                            lapTimes.add(
+                                              LapTime(
+                                                  activityId: activity.id!,
+                                                  lapTime: duration.inSeconds,
+                                                  createdTime:
+                                                      activity.createdTime),
+                                            );
+                                          }
+                                          await activityTimerScreenData
+                                              .insertLapTimes(lapTimes);
+                                        }
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ActivityDetail(
+                                                    activity: activity),
+                                          ),
+                                        );
+                                        timerData.resetScreen();
+                                        activityTimerScreenData.getAllTitle();
+                                      },
+                                    );
+                                  }
+                                }
+                              },
+                              child: Container(
+                                width: 120,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color: Colors.blueAccent,
+                                  // shape: BoxShape.circle,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Center(
+                                  child: Text(
+                                    'SAVE',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 20),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          Container(
+                            width: 120,
+                            height: 80,
+                            decoration: const BoxDecoration(
+                              color: Colors.green,
+                              // shape: BoxShape.circle,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(20),
+                              ),
+                            ),
+                            child: TextButton(
+                              // shape
+                              onPressed: () {
+                                timerData.startTimer();
+                              },
+                              child: const Text(
+                                'START',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20),
+                              ),
+                            ),
                           ),
-                        ),
-                        child: TextButton(
-                          // shape
-                          onPressed: () {
-                            _timerData.startTimer();
-                          },
-                          child: const Text(
-                            'START',
-                            style: TextStyle(color: Colors.white, fontSize: 20),
-                          ),
-                        ),
+                        ],
                       ),
-                  ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LapItem extends StatelessWidget {
+  const LapItem({
+    super.key,
+    required this.index,
+    required this.duration,
+  });
+
+  final int index;
+  final String duration;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Container(
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(width: 1, color: kContainerColor),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Lap $index',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                ),
+              ),
+              Text(
+                duration,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
                 ),
               ),
             ],

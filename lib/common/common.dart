@@ -56,4 +56,37 @@ class Common {
     }
     return '';
   }
+
+  static String durationFormatC(Duration duration) {
+    switch (duration.toString().length) {
+      case 14:
+        return duration.toString().substring(0, 9);
+
+      case 15:
+        return duration.toString().substring(0, 10);
+
+      case 16:
+        return duration.toString().substring(0, 11);
+      case 17:
+        return duration.toString().substring(0, 12);
+    }
+    return '';
+  }
+
+  static String durationFormatD(int seconds) {
+    Duration duration = Duration(seconds: seconds);
+    switch (duration.toString().length) {
+      case 14:
+        return duration.toString().substring(0, 10);
+
+      case 15:
+        return duration.toString().substring(0, 11);
+
+      case 16:
+        return duration.toString().substring(0, 12);
+      case 17:
+        return duration.toString().substring(0, 13);
+    }
+    return '';
+  }
 }

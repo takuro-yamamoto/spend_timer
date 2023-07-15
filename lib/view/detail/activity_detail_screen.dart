@@ -10,7 +10,7 @@ import 'package:spend_timer/common/constraints.dart';
 class ActivityDetail extends StatelessWidget {
   final Activity activity;
 
-  ActivityDetail({super.key, required this.activity});
+  const ActivityDetail({super.key, required this.activity});
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -53,24 +53,69 @@ class ActivityDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _activityDetailData = context.watch<ActivityDetailScreenData>();
+    final activityDetailData = context.watch<ActivityDetailScreenData>();
 
     Duration duration =
-        Duration(seconds: _activityDetailData.activity.durationInSeconds);
+        Duration(seconds: activityDetailData.activity.durationInSeconds);
     int selectedHour = 0;
     int selectedMinute = 0;
     int selectedSecond = 0;
     int durationInSeconds = 0;
-    String title = _activityDetailData.activity.title;
-    String description = _activityDetailData.activity.description;
+    String title = activityDetailData.activity.title;
+    String description = activityDetailData.activity.description;
 
     MediaQueryData mediaQuery = MediaQuery.of(context);
     double deviceHeight = mediaQuery.size.height;
 
+    List<Widget> getLapTimes() {
+      List<Widget> lapTimesList = [];
+      for (int index = 0; index < activityDetailData.lapTimes.length; index++) {
+        lapTimesList.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  top: (index == 0)
+                      ? const BorderSide(width: 1, color: kContainerColor)
+                      : BorderSide.none,
+                  bottom: const BorderSide(width: 1, color: kContainerColor),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Lap ${index + 1}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      Common.durationFormatA(
+                          activityDetailData.lapTimes[index].lapTime),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+      return lapTimesList;
+    }
+
     return Scaffold(
       backgroundColor: kBackgroundColor,
       body: SafeArea(
-        child: _activityDetailData.isLoading
+        child: activityDetailData.isLoading
             ? const Center(
                 child: CircularProgressIndicator(),
               )
@@ -97,7 +142,7 @@ class ActivityDetailScreen extends StatelessWidget {
                             color: Colors.white,
                           ),
                           onPressed: () {
-                            if (_activityDetailData.activity.id != null) {
+                            if (activityDetailData.activity.id != null) {
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -117,7 +162,9 @@ class ActivityDetailScreen extends StatelessWidget {
                                         onPressed: () {
                                           // Perform deletion
                                           // Example: Delete data or navigate to another screen
-                                          _activityDetailData.deleteActivity();
+                                          activityDetailData.deleteActivity();
+
+                                          activityDetailData.deleteLapTimes();
                                           Navigator.pop(
                                               context); // Close the dialog
                                           Navigator.pop(context,
@@ -139,7 +186,7 @@ class ActivityDetailScreen extends StatelessWidget {
                             color: Colors.white,
                           ),
                           onPressed: () {
-                            if (_activityDetailData.activity.id != null) {
+                            if (activityDetailData.activity.id != null) {
                               selectedHour = duration.inHours;
                               selectedMinute = duration.inMinutes.remainder(60);
                               selectedSecond = duration.inSeconds.remainder(60);
@@ -150,7 +197,7 @@ class ActivityDetailScreen extends StatelessWidget {
                                   selectedHour,
                                   selectedMinute,
                                   selectedSecond,
-                                  _activityDetailData,
+                                  activityDetailData,
                                   title,
                                   description);
                             }
@@ -164,7 +211,7 @@ class ActivityDetailScreen extends StatelessWidget {
                           Center(
                             child: Text(
                               DateFormat('yyyy/MM/dd HH:mm:ss').format(
-                                  _activityDetailData.activity.createdTime),
+                                  activityDetailData.activity.createdTime),
                               style: const TextStyle(
                                   fontSize: 16, color: Colors.white),
                             ),
@@ -172,7 +219,7 @@ class ActivityDetailScreen extends StatelessWidget {
                           const SizedBox(height: 16),
                           Center(
                             child: Text(
-                              Common.durationFormatA(_activityDetailData
+                              Common.durationFormatA(activityDetailData
                                   .activity.durationInSeconds),
                               style: const TextStyle(
                                   fontSize: 50,
@@ -180,9 +227,12 @@ class ActivityDetailScreen extends StatelessWidget {
                                   color: Colors.white),
                             ),
                           ),
+                          Column(
+                            children: getLapTimes(),
+                          ),
                           const SizedBox(height: 16),
                           Text(
-                            _activityDetailData.activity.title,
+                            activityDetailData.activity.title,
                             style: const TextStyle(
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold,
@@ -196,7 +246,7 @@ class ActivityDetailScreen extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              _activityDetailData.activity.description,
+                              activityDetailData.activity.description,
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.white,
@@ -216,76 +266,80 @@ class ActivityDetailScreen extends StatelessWidget {
   Future<dynamic> buildShowModalBottomSheet(
       BuildContext context,
       double deviceHeight,
-      int durationInSecounds,
+      int durationInSeconds,
       int selectedHour,
       int selectedMinute,
       int selectedSecond,
-      ActivityDetailScreenData _activityDetailData,
+      ActivityDetailScreenData activityDetailData,
       String title,
       String description) {
     return showModalBottomSheet(
       isScrollControlled: true,
       context: context,
-      builder: (context) => GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
+      builder: (context) => SingleChildScrollView(
         child: Container(
-          height: deviceHeight * 0.9,
-          color: kModalEdgeColorColor,
-          child: Container(
-            decoration: const BoxDecoration(
-              color: kBackgroundColor,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20.0),
-                topRight: Radius.circular(20.0),
-              ),
-            ),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              icon: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                              ),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              FocusScope.of(context).unfocus();
+            },
+            child: Container(
+              // height: deviceHeight * 0.9,
+              color: kModalEdgeColorColor,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: kBackgroundColor,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20.0),
+                    topRight: Radius.circular(20.0),
+                  ),
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            icon: const Icon(
+                              Icons.close,
+                              color: Colors.white,
                             ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.done,
-                                color: Colors.white,
-                              ),
-                              onPressed: () async {
-                                if (_formKey.currentState != null &&
-                                    _formKey.currentState!.validate()) {
-                                  durationInSecounds = selectedHour * 60 * 60 +
-                                      selectedMinute * 60 +
-                                      selectedSecond;
-                                  _activityDetailData.activity.title = title;
-                                  _activityDetailData.activity.description =
-                                      description;
-                                  _activityDetailData.activity
-                                      .durationInSeconds = durationInSecounds;
-                                  int result = await _activityDetailData
-                                      .updateActivity();
-                                  Navigator.pop(context);
-                                }
-                              },
-                            )
-                          ],
-                        ),
-                        Container(
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.done,
+                              color: Colors.white,
+                            ),
+                            onPressed: () async {
+                              if (_formKey.currentState != null &&
+                                  _formKey.currentState!.validate()) {
+                                durationInSeconds = selectedHour * 60 * 60 +
+                                    selectedMinute * 60 +
+                                    selectedSecond;
+                                activityDetailData.activity.title = title;
+                                activityDetailData.activity.description =
+                                    description;
+                                activityDetailData.activity.durationInSeconds =
+                                    durationInSeconds;
+
+                                await activityDetailData.updateActivity();
+                                Navigator.pop(context);
+                              }
+                            },
+                          )
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Container(
                           width: 270,
                           decoration: BoxDecoration(
                               color: kContainerColor,
@@ -315,15 +369,17 @@ class ActivityDetailScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        Container(
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Container(
                           decoration: const BoxDecoration(
                               border: Border(
                             top: BorderSide(color: kContainerColor),
                             bottom: BorderSide(color: kContainerColor),
                           )),
                           child: TextFormField(
-                            initialValue: _activityDetailData.activity.title,
+                            initialValue: activityDetailData.activity.title,
                             style: const TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
@@ -345,43 +401,36 @@ class ActivityDetailScreen extends StatelessWidget {
                               return null;
                             },
                             onChanged: (value) {
-                              if (value != null) {
-                                title = value;
-                                // title = value;
-                              }
+                              title = value;
                             },
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextFormField(
-                            initialValue:
-                                _activityDetailData.activity.description,
-                            maxLines: 10,
-                            style: const TextStyle(
-                              color: Colors.white,
-                            ),
-                            decoration: InputDecoration(
-                                labelText: 'memo',
-                                labelStyle: TextStyle(
-                                  color: Colors.white.withOpacity(0.5),
-                                ),
-                                border: InputBorder.none
-                                // filled: true,
-                                // fillColor: Colors.white,
-                                ),
-                            onChanged: (value) {
-                              if (value != null) {
-                                description = value;
-                              }
-                            },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: TextFormField(
+                          initialValue: activityDetailData.activity.description,
+                          maxLines: 10,
+                          style: const TextStyle(
+                            color: Colors.white,
                           ),
+                          decoration: InputDecoration(
+                              labelText: 'memo',
+                              labelStyle: TextStyle(
+                                color: Colors.white.withOpacity(0.5),
+                              ),
+                              border: InputBorder.none
+                              // filled: true,
+                              // fillColor: Colors.white,
+                              ),
+                          onChanged: (value) {
+                            description = value;
+                          },
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

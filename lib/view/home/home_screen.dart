@@ -24,18 +24,29 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _timerData = context.watch<TimerData>();
+    final timerData = context.watch<TimerData>();
+    final PageController controller =
+        PageController(initialPage: timerData.selectIndex);
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      body: _timerData.screens[_timerData.selectIndex],
+      body: PageView(
+        controller: controller,
+        children: timerData.screens,
+        onPageChanged: (int index) {
+          timerData.onItemTapped(index);
+        },
+      ),
       bottomNavigationBar: BottomNavigationBar(
         // showSelectedLabels: false,
         // showUnselectedLabels: false,
         backgroundColor: Colors.white.withOpacity(0.1),
         unselectedItemColor: Colors.white,
         selectedItemColor: Colors.greenAccent,
-        currentIndex: _timerData.selectIndex,
-        onTap: _timerData.onItemTapped,
+        currentIndex: timerData.selectIndex,
+        onTap: (int index) {
+          timerData.onItemTapped(index);
+          controller.jumpToPage(index);
+        },
         items: const [
           BottomNavigationBarItem(
             icon: Icon(

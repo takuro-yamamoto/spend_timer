@@ -1,8 +1,11 @@
 import 'package:spend_timer/model/db/activity_database_helper.dart';
+import 'package:spend_timer/model/db/lap_times_database_helper.dart';
 import 'package:spend_timer/model/entity/activity.dart';
+import 'package:spend_timer/model/entity/lap_time.dart';
 
-class ActivityRepository {
+class Repository {
   final ActivityDatabaseHelper _dbHelper = ActivityDatabaseHelper();
+  final LapTimesDatabaseHelper _lapTimesDbHelper = LapTimesDatabaseHelper();
 
   Future<List<String>> getAllTitle() => _dbHelper.getAllTitle();
 
@@ -29,4 +32,13 @@ class ActivityRepository {
 
   Future<int> updateActivity(Activity activity) =>
       _dbHelper.updateActivity(activity);
+
+  Future<int> insertLapTime(LapTime lapTime) =>
+      _lapTimesDbHelper.insertLapTime(lapTime);
+
+  Future<List<LapTime>> getLapTimesByActivityId(int activityId) =>
+      _lapTimesDbHelper.getLapTimesByActivityId(activityId);
+
+  Future<int> deleteLapTimes(int activityId) =>
+      _lapTimesDbHelper.deleteLapTimes(activityId);
 }

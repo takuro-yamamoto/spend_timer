@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:spend_timer/model/entity/activity.dart';
-import 'package:spend_timer/model/repository/activity_repository.dart';
+import 'package:spend_timer/model/repository/repository.dart';
+import 'package:spend_timer/model/entity/lap_time.dart';
 
 class ActivityDetailScreenData extends ChangeNotifier {
-  final ActivityRepository _repository = ActivityRepository();
+  final Repository _repository = Repository();
   Activity activity;
   bool _isLoading = false;
+  List<LapTime> lapTimes = [];
 
   bool get isLoading => _isLoading;
 
   ActivityDetailScreenData({required this.activity}) {
     _startLoading();
     getActivityByCreatedTime(activity.createdTime);
+    getLapTimes();
     _finishLoading();
   }
 
@@ -46,7 +49,18 @@ class ActivityDetailScreenData extends ChangeNotifier {
   Future<int> deleteActivity() async {
     int result;
     result = await _repository.deleteActivity(activity.id!);
-    if (result == 1) {}
+    notifyListeners();
+    return result;
+  }
+
+  Future getLapTimes() async {
+    lapTimes = await _repository.getLapTimesByActivityId(activity.id!);
+    notifyListeners();
+  }
+
+  Future<int> deleteLapTimes() async {
+    int result;
+    result = await _repository.deleteLapTimes(activity.id!);
     notifyListeners();
     return result;
   }

@@ -1,11 +1,11 @@
 import 'package:spend_timer/model/entity/activity.dart';
 import 'package:spend_timer/model/entity/weekday.dart';
 import 'package:flutter/material.dart';
-import 'package:spend_timer/model/repository/activity_repository.dart';
+import 'package:spend_timer/model/repository/repository.dart';
 import 'package:spend_timer/common/common.dart';
 
 class CalenderScreenData extends ChangeNotifier {
-  final ActivityRepository _repository = ActivityRepository();
+  final Repository _repository = Repository();
 
   CalenderScreenData() {
     load();
@@ -15,6 +15,7 @@ class CalenderScreenData extends ChangeNotifier {
   List<Activity> _weekActivities = [];
   List<Activity> _previousWeekActivities = [];
   List<Activity> _totalTimeActivities = [];
+  List<Activity> _totalTimeActivitiesCharts = [];
   List<Weekday> _weekdayTime = [];
   List<Weekday> _previousWeekdayTime = [];
   Map<DateTime, List<Activity>> _events = {};
@@ -24,15 +25,15 @@ class CalenderScreenData extends ChangeNotifier {
   List<Activity> get weekActivities => _weekActivities;
   List<Activity> get previousWeekActivities => _previousWeekActivities;
   List<Activity> get totalTimeActivities => _totalTimeActivities;
+  List<Activity> get totalTimeActivitiesCharts => _totalTimeActivitiesCharts;
   List<Weekday> get weekdayTime => _weekdayTime;
   List<Weekday> get previousWeekdayTime => _previousWeekdayTime;
   Map<DateTime, List<Activity>> get events => _events;
   int get differenceFromLastWeek => _differenceFromLastWeek;
 
   DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
   DateTime get focusedDay => _focusedDay;
-  // DateTime? get selectedDay => _selectedDay;
+  bool isShowTotalTimeWidget = true;
 
   bool _isLoading = false;
 
@@ -88,10 +89,10 @@ class CalenderScreenData extends ChangeNotifier {
     _weekActivities = await _repository.getWeekActivities(day);
 
     _weekdayTime = getWeekday(day, _weekActivities);
-    _previousWeekActivities =
-        await _repository.getWeekActivities(day.subtract(Duration(days: 7)));
-    _previousWeekdayTime =
-        getWeekday(day.subtract(Duration(days: 7)), _previousWeekActivities);
+    _previousWeekActivities = await _repository
+        .getWeekActivities(day.subtract(const Duration(days: 7)));
+    _previousWeekdayTime = getWeekday(
+        day.subtract(const Duration(days: 7)), _previousWeekActivities);
     // notifyListeners();
   }
 
@@ -103,13 +104,44 @@ class CalenderScreenData extends ChangeNotifier {
 
   Future getTotalTimeActivities() async {
     _totalTimeActivities = await _repository.getTotalTimeActivities();
-    addColorToActivity(_totalTimeActivities);
-    // notifyListeners();
+    _totalTimeActivitiesCharts = List.from(_totalTimeActivities);
+    if (_totalTimeActivitiesCharts.length > 10) {
+      // 「その他」の総時間を計算
+      int otherTotalTime = 0;
+      for (int i = 10; i < _totalTimeActivitiesCharts.length; i++) {
+        otherTotalTime += _totalTimeActivitiesCharts[i].durationInSeconds;
+      }
+
+      // 「その他」のアクティビティを作成
+      Activity otherActivity = Activity(
+        title: 'その他',
+        durationInSeconds: otherTotalTime,
+        createdTime: DateTime.now(),
+        description: '', // カスタマイズ可能な色を指定
+      );
+
+      // リストから削除
+      _totalTimeActivitiesCharts.removeRange(
+          10, _totalTimeActivitiesCharts.length);
+
+      // 「その他」のアクティビティを追加
+      _totalTimeActivitiesCharts.add(otherActivity);
+    }
+    addColorToActivity(_totalTimeActivitiesCharts);
   }
 
   void addColorToActivity(List<Activity> activities) {
-    for (int i = 0; i < activities.length; i++) {
-      activities[i].color = Common.colors[i];
+    if (activities.length > 10) {
+      for (int i = 0; i < 10; i++) {
+        activities[i].color = Common.colors[i];
+      }
+      for (int i = 10; i < activities.length; i++) {
+        activities[i].color = Colors.grey;
+      }
+    } else {
+      for (int i = 0; i < activities.length; i++) {
+        activities[i].color = Common.colors[i];
+      }
     }
   }
 
@@ -177,5 +209,10 @@ class CalenderScreenData extends ChangeNotifier {
         )] = [activity];
       }
     }
+  }
+
+  void changeTotalTimeWidget(bool isChanged) {
+    isShowTotalTimeWidget = isChanged;
+    notifyListeners();
   }
 }

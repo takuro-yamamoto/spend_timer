@@ -33,7 +33,7 @@ class CalenderDayModal extends StatelessWidget {
   Widget build(BuildContext context) {
     MediaQueryData mediaQuery = MediaQuery.of(context);
     double deviceHeight = mediaQuery.size.height;
-    final _calenderDayData = context.watch<CalenderDayModalData>();
+    final calenderDayData = context.watch<CalenderDayModalData>();
 
     return Container(
       color: kModalEdgeColorColor,
@@ -73,9 +73,9 @@ class CalenderDayModal extends StatelessWidget {
             Expanded(
               flex: 20,
               child: ListView.builder(
-                itemCount: _calenderDayData.dayActivities.length,
+                itemCount: calenderDayData.dayActivities.length,
                 itemBuilder: (context, index) {
-                  final activity = _calenderDayData.dayActivities[index];
+                  final activity = calenderDayData.dayActivities[index];
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8.0,
@@ -92,11 +92,12 @@ class CalenderDayModal extends StatelessWidget {
                             SlidableAction(
                               onPressed: (context) async {
                                 if (activity.id != null) {
-                                  await _calenderDayData.deleteActivity(
+                                  await calenderDayData.deleteActivity(
                                       activity, day);
+                                  calenderDayData.deleteLapTimes(activity);
 
-                                  _calenderDayData.reset();
-                                  _calenderDayData.getDayActivities(day);
+                                  calenderDayData.reset();
+                                  calenderDayData.getDayActivities(day);
                                 }
                               },
                               backgroundColor: const Color(0xFFFE4A49),
@@ -122,7 +123,7 @@ class CalenderDayModal extends StatelessWidget {
                             style: const TextStyle(color: Colors.white),
                           ),
                           onTap: () async {
-                            final result = await Navigator.push(
+                            await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
@@ -130,8 +131,8 @@ class CalenderDayModal extends StatelessWidget {
                               ),
                             );
 
-                            _calenderDayData.reset();
-                            _calenderDayData.getDayActivities(day);
+                            calenderDayData.reset();
+                            calenderDayData.getDayActivities(day);
                           },
                         ),
                       ),
