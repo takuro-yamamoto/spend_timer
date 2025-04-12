@@ -31,6 +31,7 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: kBackgroundColor,
       body: PageView(
         controller: controller,
+        physics: NeverScrollableScrollPhysics(),
         children: timerData.screens,
         onPageChanged: (int index) {
           timerData.onItemTapped(index);

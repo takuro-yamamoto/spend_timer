@@ -227,9 +227,7 @@ class ActivityDetailScreen extends StatelessWidget {
                                   color: Colors.white),
                             ),
                           ),
-                          Column(
-                            children: getLapTimes(),
-                          ),
+
                           const SizedBox(height: 16),
                           Text(
                             activityDetailData.activity.title,
@@ -252,6 +250,9 @@ class ActivityDetailScreen extends StatelessWidget {
                                 color: Colors.white,
                               ),
                             ),
+                          ),
+                          Column(
+                            children: getLapTimes(),
                           ),
                         ],
                       ),
