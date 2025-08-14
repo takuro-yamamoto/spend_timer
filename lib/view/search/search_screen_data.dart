@@ -19,6 +19,8 @@ class SearchScreenData extends ChangeNotifier {
 
   String searchString = '';
 
+  final searchController = TextEditingController();
+
   void _startLoading() {
     _isLoading = true;
     notifyListeners();
@@ -55,5 +57,10 @@ class SearchScreenData extends ChangeNotifier {
     result = await _repository.deleteLapTimes(activity.id!);
     notifyListeners();
     return result;
+  }
+
+  void _searchStringClear() {
+    searchString = '';
+    notifyListeners();
   }
 }

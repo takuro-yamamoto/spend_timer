@@ -75,7 +75,6 @@ class CalenderScreenData extends ChangeNotifier {
     _weekdayTime = [];
     _previousWeekdayTime = [];
     _events = {};
-    _focusedDay = DateTime.now();
     _isLoading = false;
     _differenceFromLastWeek = 0;
   }
